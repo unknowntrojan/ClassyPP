@@ -68,6 +68,10 @@ def FuncNameNotDefinedByPDB(func: bn.Function) -> bool:
 
 
 def RenameFunction(bv: bn.BinaryView, vtable_function: int, lca: int, function_index: int) -> bool:
+    if vtable_function > bv.end or vtable_function < bv.start:
+        print(f"function at {vtable_function:x} is outside of our binary!")
+        return False
+    
     class_name: str = ClassContext.base_class_descriptors[lca]['class_name'] # .replace("class ", "")
     try:
         func: bn.Function = bv.get_function_at(vtable_function)
@@ -89,8 +93,32 @@ def RenameFunction(bv: bn.BinaryView, vtable_function: int, lca: int, function_i
 def DefinevTableFunctions(bv: bn.BinaryView, class_hierarchy_graph: DiGraph):
     mapped_functions: Dict[int: List[int]] = MapAllVirtualFunctions()
 
+    print("finding ambiguous vfuncs...")
+    
+    ambiguous_functions = list()
+    
+    for vfunc, info in mapped_functions.items():
+        indices = dict()
+        for idx, class_list in info.items():
+            if idx in indices:
+                indices[idx].extend(class_list)
+            else:
+                indices[idx] = list()
+                indices[idx].extend(class_list)
+                        
+        if len(indices) > 1:
+            def classes_for_vfunc(index: int, classes: list[int]):
+                return { ClassContext.base_class_descriptors[class_index]['class_name'] for class_index in classes }
+                # (index, map(lambda class_index: ClassContext.base_class_descriptors[class_index]['class_name'], classes))
+            
+            print("ambiguous function at {vfunc:x} is present at different indices in several vtables: {present_in}!".format(vfunc=vfunc, present_in={k: classes_for_vfunc(k, v) for k,v in indices.items()}))
+            ambiguous_functions.append(vfunc)
+
     Utils.LogToFile(f'mapped_functions: {mapped_functions}')
     for vtable_function, info in mapped_functions.items():
+        if vtable_function in ambiguous_functions:
+            continue
+        
         for function_index, class_list in info.items():
             if len(class_list) > 1:
                 lca: int = GetLowestCommonAncestor(class_list, class_hierarchy_graph)
