@@ -111,7 +111,7 @@ def DetectConstructorForVTable(bv: bn.BinaryView, vfTable_addr: int) -> list[bn.
             potential_constructors.append(potential_constructor)
             print(f'Found constructor - {potential_constructor.name}')
             global_constructor_destructor_list.append(potential_constructor.start)
-    return potential_constructors
+    return list(dict.fromkeys(potential_constructors))
 
 
 def IsDestructor(bv: bn.BinaryView, potential_destructor: bn.function.Function) -> bool:
@@ -133,7 +133,7 @@ def DefineConstructor(bv: bn.BinaryView, potential_constructors: list[bn.functio
     if not class_name:
         class_name: str = bv.get_data_var_at(vtable_addr).name
     if class_name:
-        class_name = class_name.replace("::vfTable", "").replace("class ", "")
+        class_name = class_name.replace("::vfTable", "")
         for constructor in potential_constructors:
             func_type = "Constructor"
             if IsDestructor(bv, constructor):
@@ -211,7 +211,7 @@ def GetConstructorThunks(bv: bn.BinaryView, constructors: List[int]) -> List[Tup
                 print(f"detected thunk at {hex(ref.address)}")
                 thunks.append((func, constructor_func))
                 
-    return thunks
+    return list(dict.fromkeys(thunks))
 
 def DefineConstructorThunks(bv: bn.BinaryView, thunks: List[Tuple[bn.Function, bn.Function]]):
         thunk: bn.Function
