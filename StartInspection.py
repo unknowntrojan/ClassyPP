@@ -43,7 +43,7 @@ class InspectInBackground(bn.BackgroundTaskThread):
 
     def run(self):
         try:
-            if GetUserInputs():
+            # if GetUserInputs():
                 self.bv.begin_undo_actions()
                 if Config.ENABLE_LOGGING or Config.ENABLE_DEBUG_LOGGING:
                     Utils.logging_file = Utils.GetLogfileHandle()
@@ -78,7 +78,17 @@ class InspectInBackground(bn.BackgroundTaskThread):
             Utils.LogToFile(f'ClassyPP: Failed to create types.')
         return False
 
-
+# TODO: add code refs to RTTI structs and their imagebase relative addresses.
+# TODO: fix duplicate class detections
+# TODO: fix inconsistent class detections. WHY IS IT NON DETERMINISTIC WHAT
+# TODO: autodefine types for all classes. 
+# TODO: set pointer types in constructors and on code refs to constructors (propagate up)
+# TODO: fix classypp trying to define functions from either non existent vtables or wrong ones (worldrenderer) (only happened once, non-deterministic.)
+# TODO: DefineVfTables: add information of base classes according to non 0x0 offset assignments.
+# TODO: find why sometimes a class with the same name appears multiple times  (CGrenade)
+# TODO: fixup old schema. for example, overwrite old constructor names with new ones.
+# TODO: maybe remove class/struct keyword from everything it makes the symbol view take even more space than it already does.
+# TODO: use bulk_modify_symbols
 def inspect(bv: bn.BinaryView):
     if bv.analysis_info.state != 2:
         print(f'ClassyPP: Binja analysis still ongoing, please run this plugin only after analysis completes.')

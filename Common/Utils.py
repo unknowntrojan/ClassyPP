@@ -58,15 +58,16 @@ def DemangleName(mangled_name: str) -> str:
 #                   LOGGING
 ############################################################################################
 def GetLogfileHandle():
-    if Config.LOG_FILES_DETERMINED_BY_USER:
-        LoggingDirectory: str = bn.interaction.get_directory_name_input(
-            f"Please select a directory to store the log files")
-    else:
-        LoggingDirectory: str = Config.LOGFILE_FULL_PATH
+    # if Config.LOG_FILES_DETERMINED_BY_USER:
+        # LoggingDirectory: str = bn.interaction.get_directory_name_input(
+           # f"Please select a directory to store the log files")
+    # else:
+        # LoggingDirectory: str = Config.LOGFILE_FULL_PATH
 
-    log_file_path = os.path.join(LoggingDirectory, 'log_debug.txt')
+    # log_file_path = os.path.join(LoggingDirectory, 'log_debug.txt')
+    log_file_path = "E:\\log_debug.txt"
     try:
-        if exists(LoggingDirectory):
+        if exists(log_file_path):
             log_file = open(log_file_path, 'w')
         else:
             log_file = open(log_file_path, 'x')
